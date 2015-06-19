@@ -43,9 +43,8 @@ makeCacheMatrix <- function(x = matrix()) {
 ## If the inverse exists in the cache returns it, else computes inverse and sets cache
 
 cacheSolve <- function(x, ...) {
-        ## Return a matrix that is the inverse of 'x'
 
-    inv_x <- NULL
+    ## Return a matrix that is the inverse of 'x'
 
     #Make sure that the matrix is square and its determinant is non-zero
 
@@ -54,26 +53,30 @@ cacheSolve <- function(x, ...) {
     if((dimensions[1] == dimensions[2]) && (det(x) != 0)){
     
         # Check if the Matrix is identical to stored matrix
-        constr <- makeCacheMatrix()
     
-        if(identical(x, constr$get()) && !is.null(constr$getInv())) {
+        if (!exists("constr")) {
+            constr <<- makeCacheMatrix(x)
+        }
+    
+        if(is.null(constr$getInv())) {
         
-            # Get the value of Matrix Inverse from Cache if it exists
-            inv_x <- constr$getInv()
+            if(!identical(constr$get(), x)){
+                constr$set(x)
+            }
+        
+            constr$setInv(solve(x))
         
         } else {
-        
-            inv_x <- solve(x)
-            constr$setInv(inv_x)
-        
+            if(!identical(constr$get(),x)){
+                constr$set(x)
+                constr$setInv(solve(x))
+            }
         }
+        return(constr$getInv())
     
     } else {
     
         message("Inverse of this matrix doesn't exist")
     
     }
-    
-    return(inv_x)
-
 }
